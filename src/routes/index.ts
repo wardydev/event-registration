@@ -1,5 +1,6 @@
 import { type NextFunction, type Request, type Response, Router } from 'express'
 
+import uploadRoute from '../app/upload-fs/upload-fs.routes'
 import usersRoute from '../app/user/user.route'
 import { ERROR_CODE } from '../interface'
 import { AppError } from '../middleware'
@@ -8,6 +9,7 @@ import { ResponseHandler } from '../utils'
 const route = Router()
 
 route.use('/users', usersRoute)
+route.use('/upload', uploadRoute)
 
 route.get('/', (req: Request, res: Response) => {
 	ResponseHandler.ok(res, null, 'Hello World 🌍🚀')

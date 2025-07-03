@@ -125,7 +125,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/home/hairulwardi/wardygital/wardy-backend-template/src/prisma/client",
+      "value": "/home/hairulwardi/working-area/wardygital/nodejs-template/src/prisma/client",
       "fromEnvVar": null
     },
     "config": {
@@ -143,7 +143,7 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/home/hairulwardi/wardygital/wardy-backend-template/prisma/schema.prisma",
+    "sourceFilePath": "/home/hairulwardi/working-area/wardygital/nodejs-template/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
