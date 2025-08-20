@@ -1,8 +1,6 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Path: prisma/schema.prisma
+// Event Registration System - Database Schema
+// Generated for: Bedah Buku Jangan Sedih Lombok
 
 generator client {
   provider      = "prisma-client-js"
@@ -15,14 +13,138 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// ========================================
+// CORE MODELS
+// ========================================
+
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  name      String
-  isActive  Boolean?  @default(false) @map("is_active")
-  createdAt DateTime  @default(now()) @map("created_at") @db.DateTime(0)
-  updatedAt DateTime  @default(now()) @map("updated_at") @db.DateTime(0)
-  deletedAt DateTime? @map("deleted_at") @db.DateTime(0)
+  id        Int      @id @default(autoincrement())
+  name      String   @db.VarChar(255)
+  email     String   @unique @db.VarChar(255)
+  phone     String   @db.VarChar(20)
+  city      String?  @db.VarChar(100)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  registrations Registration[]
 
   @@map("users")
+}
+
+model Registration {
+  id                Int           @id @default(autoincrement())
+  userId            Int           @map("user_id")
+  ticketType        TicketType    @map("ticket_type")
+  ticketPrice       Decimal       @map("ticket_price") @db.Decimal(10, 2)
+  paymentStatus     PaymentStatus @default(PENDING) @map("payment_status")
+  paymentProofPath  String?       @map("payment_proof_path") @db.VarChar(500)
+  qrCode            String        @unique @map("qr_code") @db.VarChar(255)
+  qrCodePath        String?       @map("qr_code_path") @db.VarChar(500)
+  registrationDate  DateTime      @default(now()) @map("registration_date")
+  paymentVerifiedAt DateTime?     @map("payment_verified_at")
+  verifiedBy        Int?          @map("verified_by")
+  rejectionReason   String?       @map("rejection_reason") @db.Text
+  checkedIn         Boolean       @default(false) @map("checked_in")
+  checkedInAt       DateTime?     @map("checked_in_at")
+
+  // Relations
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verifier    Admin?       @relation("VerifiedBy", fields: [verifiedBy], references: [id])
+  paymentLogs PaymentLog[]
+  checkIns    CheckIn[]
+
+  @@map("registrations")
+}
+
+model Admin {
+  id           Int       @id @default(autoincrement())
+  name         String    @db.VarChar(255)
+  email        String    @unique @db.VarChar(255)
+  passwordHash String    @map("password_hash") @db.VarChar(255)
+  role         AdminRole
+  createdAt    DateTime  @default(now()) @map("created_at")
+  lastLogin    DateTime? @map("last_login")
+
+  // Relations
+  verifiedRegistrations Registration[] @relation("VerifiedBy")
+  paymentLogs           PaymentLog[]
+  checkIns              CheckIn[]
+
+  @@map("admins")
+}
+
+// ========================================
+// LOGGING MODELS
+// ========================================
+
+model PaymentLog {
+  id             Int           @id @default(autoincrement())
+  registrationId Int           @map("registration_id")
+  adminId        Int           @map("admin_id")
+  action         PaymentAction
+  reason         String?       @db.Text
+  timestamp      DateTime      @default(now())
+
+  // Relations
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  admin        Admin        @relation(fields: [adminId], references: [id])
+
+  @@map("payment_logs")
+}
+
+model CheckIn {
+  id             Int           @id @default(autoincrement())
+  registrationId Int           @map("registration_id")
+  adminId        Int           @map("admin_id")
+  checkInTime    DateTime      @default(now()) @map("check_in_time")
+  checkInMethod  CheckInMethod @map("check_in_method")
+  notes          String?       @db.Text
+
+  // Relations
+  registration Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+  admin        Admin        @relation(fields: [adminId], references: [id])
+
+  @@map("check_ins")
+}
+
+// ========================================
+// ENUMS
+// ========================================
+
+enum TicketType {
+  REGULAR @map("regular")
+  VIP     @map("vip")
+
+  @@map("TicketType")
+}
+
+enum PaymentStatus {
+  PENDING  @map("pending")
+  VERIFIED @map("verified")
+  REJECTED @map("rejected")
+
+  @@map("PaymentStatus")
+}
+
+enum AdminRole {
+  SUPER_ADMIN @map("super_admin")
+  ADMIN       @map("admin")
+  VERIFIER    @map("verifier")
+
+  @@map("AdminRole")
+}
+
+enum PaymentAction {
+  APPROVED @map("approved")
+  REJECTED @map("rejected")
+
+  @@map("PaymentAction")
+}
+
+enum CheckInMethod {
+  QR_SCAN @map("qr_scan")
+  MANUAL  @map("manual")
+
+  @@map("CheckInMethod")
 }

@@ -124,12 +124,57 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 
 exports.Prisma.UserScalarFieldEnum = {
   id: 'id',
-  email: 'email',
   name: 'name',
-  isActive: 'isActive',
+  email: 'email',
+  phone: 'phone',
+  city: 'city',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt',
-  deletedAt: 'deletedAt'
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.RegistrationScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  ticketType: 'ticketType',
+  ticketPrice: 'ticketPrice',
+  paymentStatus: 'paymentStatus',
+  paymentProofPath: 'paymentProofPath',
+  qrCode: 'qrCode',
+  qrCodePath: 'qrCodePath',
+  registrationDate: 'registrationDate',
+  paymentVerifiedAt: 'paymentVerifiedAt',
+  verifiedBy: 'verifiedBy',
+  rejectionReason: 'rejectionReason',
+  checkedIn: 'checkedIn',
+  checkedInAt: 'checkedInAt'
+};
+
+exports.Prisma.AdminScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  email: 'email',
+  passwordHash: 'passwordHash',
+  role: 'role',
+  createdAt: 'createdAt',
+  lastLogin: 'lastLogin'
+};
+
+exports.Prisma.PaymentLogScalarFieldEnum = {
+  id: 'id',
+  registrationId: 'registrationId',
+  adminId: 'adminId',
+  action: 'action',
+  reason: 'reason',
+  timestamp: 'timestamp'
+};
+
+exports.Prisma.CheckInScalarFieldEnum = {
+  id: 'id',
+  registrationId: 'registrationId',
+  adminId: 'adminId',
+  checkInTime: 'checkInTime',
+  checkInMethod: 'checkInMethod',
+  notes: 'notes'
 };
 
 exports.Prisma.SortOrder = {
@@ -141,10 +186,39 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.TicketType = exports.$Enums.TicketType = {
+  REGULAR: 'REGULAR',
+  VIP: 'VIP'
+};
 
+exports.PaymentStatus = exports.$Enums.PaymentStatus = {
+  PENDING: 'PENDING',
+  VERIFIED: 'VERIFIED',
+  REJECTED: 'REJECTED'
+};
+
+exports.AdminRole = exports.$Enums.AdminRole = {
+  SUPER_ADMIN: 'SUPER_ADMIN',
+  ADMIN: 'ADMIN',
+  VERIFIER: 'VERIFIER'
+};
+
+exports.PaymentAction = exports.$Enums.PaymentAction = {
+  APPROVED: 'APPROVED',
+  REJECTED: 'REJECTED'
+};
+
+exports.CheckInMethod = exports.$Enums.CheckInMethod = {
+  QR_SCAN: 'QR_SCAN',
+  MANUAL: 'MANUAL'
+};
 
 exports.Prisma.ModelName = {
-  User: 'User'
+  User: 'User',
+  Registration: 'Registration',
+  Admin: 'Admin',
+  PaymentLog: 'PaymentLog',
+  CheckIn: 'CheckIn'
 };
 
 /**
