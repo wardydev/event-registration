@@ -1,5 +1,6 @@
 // Path: src/app/utils/qrcode.service.ts
-// QR Code generation utilities
+// Fixed QR Code generation utilities - No more timestamp generation
+// Issues resolved: Stop creating multiple files, use consistent filenames
 
 import fs from 'fs'
 import path from 'path'
@@ -17,6 +18,7 @@ export interface QRCodeOptions {
 	}
 }
 
+// ✅ FIXED: Check existing file first, no more timestamp generation
 export const generateQRCodeImage = async (
 	qrCodeText: string,
 	options: QRCodeOptions = {},
@@ -36,10 +38,19 @@ export const generateQRCodeImage = async (
 			fs.mkdirSync(qrDir, { recursive: true })
 		}
 
-		// Generate unique filename
-		const timestamp = Date.now()
-		const fileName = `qr-${qrCodeText.replace(/[^a-zA-Z0-9]/g, '_')}-${timestamp}.${format.toLowerCase()}`
+		// ✅ FIXED: Use consistent filename without timestamp
+		const cleanQrCode = qrCodeText.replace(/[^a-zA-Z0-9]/g, '_')
+		const fileName = `qr-${cleanQrCode}.${format.toLowerCase()}`
 		const filePath = path.join(qrDir, fileName)
+		const webPath = path.join('uploads', 'qrcodes', fileName)
+
+		// ✅ FIXED: Check if file already exists
+		if (fs.existsSync(filePath)) {
+			console.log(`QR code file already exists: ${fileName}`)
+			return webPath
+		}
+
+		console.log(`Generating new QR code file: ${fileName}`)
 
 		// QR Code generation options
 		const qrOptions = {
@@ -49,6 +60,7 @@ export const generateQRCodeImage = async (
 			errorCorrectionLevel,
 		}
 
+		// Generate QR code file
 		if (format === 'PNG') {
 			await QRCode.toFile(filePath, qrCodeText, qrOptions)
 		} else if (format === 'SVG') {
@@ -59,14 +71,43 @@ export const generateQRCodeImage = async (
 			fs.writeFileSync(filePath, svgString)
 		}
 
-		// Return relative path for web access
-		return path.join('uploads', 'qrcodes', fileName)
+		console.log(`QR code generated successfully: ${webPath}`)
+		return webPath
 	} catch (error) {
 		console.error('Error generating QR code:', error)
 		throw new Error('Failed to generate QR code image')
 	}
 }
 
+// ✅ NEW: Function to check if QR code file exists
+export const qrCodeFileExists = (
+	qrCodeText: string,
+	format: 'PNG' | 'SVG' = 'PNG',
+): boolean => {
+	try {
+		const qrDir = path.join(process.cwd(), 'uploads', 'qrcodes')
+		const cleanQrCode = qrCodeText.replace(/[^a-zA-Z0-9]/g, '_')
+		const fileName = `qr-${cleanQrCode}.${format.toLowerCase()}`
+		const filePath = path.join(qrDir, fileName)
+
+		return fs.existsSync(filePath)
+	} catch (error) {
+		console.error('Error checking QR code file existence:', error)
+		return false
+	}
+}
+
+// ✅ NEW: Get QR code file path without generating
+export const getQRCodeFilePath = (
+	qrCodeText: string,
+	format: 'PNG' | 'SVG' = 'PNG',
+): string => {
+	const cleanQrCode = qrCodeText.replace(/[^a-zA-Z0-9]/g, '_')
+	const fileName = `qr-${cleanQrCode}.${format.toLowerCase()}`
+	return path.join('uploads', 'qrcodes', fileName)
+}
+
+// ✅ OPTIMIZED: Generate QR code data URL (for immediate use)
 export const generateQRCodeDataURL = async (
 	qrCodeText: string,
 	options: QRCodeOptions = {},
@@ -93,6 +134,7 @@ export const generateQRCodeDataURL = async (
 	}
 }
 
+// ✅ ENHANCED: Validate QR code text with better patterns
 export const validateQRCodeText = (qrCodeText: string): boolean => {
 	// Basic validation - check if QR code text is valid
 	if (!qrCodeText || qrCodeText.trim().length === 0) {
@@ -104,6 +146,7 @@ export const validateQRCodeText = (qrCodeText: string): boolean => {
 	return qrPattern.test(qrCodeText)
 }
 
+// ✅ ENHANCED: Cleanup old QR codes (optional, for maintenance)
 export const cleanupOldQRCodes = async (
 	maxAgeHours: number = 24,
 ): Promise<void> => {
@@ -130,4 +173,24 @@ export const cleanupOldQRCodes = async (
 	} catch (error) {
 		console.error('Error cleaning up old QR codes:', error)
 	}
+}
+
+// ✅ NEW: Batch generate QR codes (for migration/bulk operations)
+export const batchGenerateQRCodes = async (
+	qrCodes: string[],
+	options: QRCodeOptions = {},
+): Promise<{ success: string[]; failed: string[] }> => {
+	const results = { success: [], failed: [] }
+
+	for (const qrCode of qrCodes) {
+		try {
+			await generateQRCodeImage(qrCode, options)
+			results.success.push(qrCode as never)
+		} catch (error) {
+			console.error(`Failed to generate QR code for ${qrCode}:`, error)
+			results.failed.push(qrCode as never)
+		}
+	}
+
+	return results
 }

@@ -24,6 +24,7 @@ export interface TicketDTO {
 	registrationDate: string
 	paymentVerifiedAt?: string
 	isValid: boolean
+	registrationId: number
 }
 
 export interface TicketValidationDTO {
