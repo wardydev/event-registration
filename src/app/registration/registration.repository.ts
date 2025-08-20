@@ -1,6 +1,6 @@
 // Path: src/app/registration/registration.repository.ts
-// Enhanced Registration repository - Generate QR code during registration
-// Issues resolved: QR code generated immediately, no delayed generation
+// Enhanced Registration repository - Generate QR code with URL format during registration
+// Issues resolved: QR code generated with frontend URL format
 
 import {
 	type TicketType,
@@ -20,7 +20,7 @@ export interface CreateRegistrationData {
 	ticketType: TicketType
 }
 
-// ✅ ENHANCED: Create registration with immediate QR generation
+// ✅ ENHANCED: Create registration with immediate QR generation (URL format)
 export const createRegistration = async (
 	data: CreateRegistrationData,
 ): Promise<Registration & { user: User }> => {
@@ -30,16 +30,18 @@ export const createRegistration = async (
 	// Generate unique QR code
 	const qrCode = generateQRCode()
 
-	// ✅ NEW: Generate QR code image immediately during registration
+	// ✅ UPDATED: Generate QR code image with URL format immediately during registration
 	let qrCodePath: string | null = null
 	try {
-		console.log(`Generating QR code for new registration: ${qrCode}`)
+		console.log(
+			`Generating QR code with URL format for registration: ${qrCode}`,
+		)
 		qrCodePath = await generateQRCodeImage(qrCode, {
 			format: 'PNG',
 			size: 300,
 			errorCorrectionLevel: 'M',
 		})
-		console.log(`QR code generated successfully: ${qrCodePath}`)
+		console.log(`QR code with URL generated successfully: ${qrCodePath}`)
 	} catch (error) {
 		console.error('Error generating QR code during registration:', error)
 		// Continue without QR code path - can be generated later
@@ -63,14 +65,14 @@ export const createRegistration = async (
 			})
 		}
 
-		// ✅ ENHANCED: Create registration with QR code path
+		// ✅ ENHANCED: Create registration with QR code path (URL format)
 		const registration = await tx.registration.create({
 			data: {
 				userId: user.id,
 				ticketType: data.ticketType,
 				ticketPrice,
 				qrCode,
-				qrCodePath, // ✅ Save QR path immediately
+				qrCodePath, // ✅ Save QR path with URL format immediately
 				paymentStatus: 'PENDING',
 			},
 			include: {
@@ -81,7 +83,7 @@ export const createRegistration = async (
 		return registration
 	})
 
-	console.log(`Registration created successfully with QR: ${qrCode}`)
+	console.log(`Registration created successfully with URL QR: ${qrCode}`)
 	return result
 }
 
@@ -210,7 +212,7 @@ export const getRegistrationsWithoutQRPath = async (): Promise<
 	}
 }
 
-// ✅ NEW: Bulk fix missing QR codes for existing registrations
+// ✅ UPDATED: Bulk fix missing QR codes for existing registrations (URL format)
 export const bulkGenerateQRCodes = async (): Promise<{
 	processed: number
 	success: number
@@ -229,12 +231,12 @@ export const bulkGenerateQRCodes = async (): Promise<{
 		results.processed = registrationsWithoutQR.length
 
 		console.log(
-			`Found ${registrationsWithoutQR.length} registrations without QR codes`,
+			`Found ${registrationsWithoutQR.length} registrations without QR codes (URL format)`,
 		)
 
 		for (const registration of registrationsWithoutQR) {
 			try {
-				// Generate QR code for existing registration
+				// ✅ UPDATED: Generate QR code with URL format for existing registration
 				const qrCodePath = await generateQRCodeImage(registration.qrCode, {
 					format: 'PNG',
 					size: 300,
@@ -246,22 +248,22 @@ export const bulkGenerateQRCodes = async (): Promise<{
 
 				results.success++
 				console.log(
-					`Generated QR for registration ${registration.id}: ${registration.qrCode}`,
+					`Generated URL QR for registration ${registration.id}: ${registration.qrCode}`,
 				)
 			} catch (error) {
 				results.failed++
-				const errorMsg = `Failed to generate QR for registration ${registration.id}`
+				const errorMsg = `Failed to generate URL QR for registration ${registration.id}`
 				results.errors.push(errorMsg)
-				console.error(errorMsg)
+				console.error(errorMsg, error)
 			}
 		}
 
 		console.log(
-			`Bulk QR generation completed: ${results.success} success, ${results.failed} failed`,
+			`Bulk URL QR generation completed: ${results.success} success, ${results.failed} failed`,
 		)
 		return results
 	} catch (error) {
-		console.error('Error in bulk QR generation:', error)
+		console.error('Error in bulk URL QR generation:', error)
 		throw error
 	}
 }

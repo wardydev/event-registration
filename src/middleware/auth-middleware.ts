@@ -1,8 +1,7 @@
 import { type NextFunction, type Request, type Response } from 'express'
 import jwt, { type Secret } from 'jsonwebtoken'
 
-import * as userRepository from '../app/user/user.repository'
-import { MESSAGES, ResponseHandler, config } from '../utils'
+import { ResponseHandler, config } from '../utils'
 
 interface RolePayload {
 	id: number
@@ -86,11 +85,6 @@ export const auth =
 			if (type === 'ACCESS') {
 				;(request as RequestWithAccessToken).tokenPayload =
 					decoded as PayloadAccessToken
-			}
-			const user = await userRepository.getUser(Number(decoded.userId))
-			if (!user) {
-				ResponseHandler.forbidden(next, MESSAGES.ERROR.NOT_FOUND.USER)
-				return
 			}
 			next()
 		} catch (error) {

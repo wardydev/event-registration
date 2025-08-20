@@ -1,5 +1,5 @@
 // Path: src/app/ticket/ticket.dto.ts
-// Ticket Data Transfer Objects
+// Ticket Data Transfer Objects - Updated for URL QR format
 
 export interface TicketDTO {
 	ticketId: string
@@ -25,6 +25,8 @@ export interface TicketDTO {
 	paymentVerifiedAt?: string
 	isValid: boolean
 	registrationId: number
+	// ✅ NEW: Frontend URL that QR code contains
+	frontendURL: string
 }
 
 export interface TicketValidationDTO {
@@ -59,4 +61,48 @@ export interface QRCodeDTO {
 	qrCodeImageUrl: string
 	format: 'PNG' | 'SVG'
 	size: number
+	// ✅ NEW: URL format specific fields
+	frontendURL: string
+	containsURL: boolean
+}
+
+// ✅ NEW: QR Code sharing DTO
+export interface QRCodeSharingDTO {
+	ticketId: string
+	qrCode: string
+	frontendURL: string
+	participantName: string
+	ticketType: 'REGULAR' | 'VIP'
+	paymentStatus: 'PENDING' | 'VERIFIED' | 'REJECTED'
+	qrCodeImageUrl?: string
+	shareText: string
+	socialMedia: {
+		whatsapp: string
+		telegram: string
+		email: string
+	}
+}
+
+// ✅ NEW: Frontend URL DTO
+export interface FrontendURLDTO {
+	qrCode: string
+	frontendURL: string
+	ticketId: string
+	participantName: string
+	isValid: boolean
+}
+
+// ✅ NEW: QR Code migration DTO
+export interface QRCodeMigrationDTO {
+	totalProcessed: number
+	successCount: number
+	failedCount: number
+	urlFormatEnabled: boolean
+	migratedQRCodes: Array<{
+		qrCode: string
+		oldFormat: string
+		newFormat: string
+		frontendURL: string
+	}>
+	errors: string[]
 }

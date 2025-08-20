@@ -81,24 +81,40 @@ export const updateQRCodePath = async (
 	qrCode: string,
 	qrCodePath: string,
 ): Promise<Registration | null> => {
-	try {
-		console.log(`Updating QR code path for ${qrCode}: ${qrCodePath}`)
+	const requestId = Math.random().toString(36).substring(7)
 
-		return await prisma.registration.update({
+	try {
+		console.log(
+			`[${requestId}] Repository: Updating QR path for ${qrCode}: ${qrCodePath}`,
+		)
+
+		const result = await prisma.registration.update({
 			where: { qrCode },
 			data: {
 				qrCodePath,
 			},
 		})
+
+		console.log(
+			`[${requestId}] Repository: QR path updated successfully for ${qrCode}`,
+		)
+		return result
 	} catch (error) {
-		console.error('Error updating QR code path:', error)
+		console.error(
+			`[${requestId}] Repository: Error updating QR code path:`,
+			error,
+		)
 		throw error
 	}
 }
 
 // ✅ NEW: Get existing QR code path from database
 export const getQRCodePath = async (qrCode: string): Promise<string | null> => {
+	const requestId = Math.random().toString(36).substring(7)
+
 	try {
+		console.log(`[${requestId}] Repository: Getting QR path for ${qrCode}`)
+
 		const registration = await prisma.registration.findUnique({
 			where: { qrCode },
 			select: {
@@ -106,9 +122,17 @@ export const getQRCodePath = async (qrCode: string): Promise<string | null> => {
 			},
 		})
 
-		return registration?.qrCodePath ?? null
+		const result = registration?.qrCodePath ?? null
+		console.log(
+			`[${requestId}] Repository: QR path result for ${qrCode}: ${result}`,
+		)
+
+		return result
 	} catch (error) {
-		console.error('Error getting QR code path:', error)
+		console.error(
+			`[${requestId}] Repository: Error getting QR code path:`,
+			error,
+		)
 		throw error
 	}
 }

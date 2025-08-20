@@ -8,6 +8,9 @@ export interface PaymentUploadDTO {
 	fileSize: number
 	uploadedAt: string
 	message: string
+	qrCode: string
+	ticketPrice: number
+	type: string
 }
 
 export interface WhatsAppLinkDTO {

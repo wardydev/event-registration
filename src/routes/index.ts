@@ -4,14 +4,12 @@ import paymentRoute from '../app/payment/payment.route'
 import registrationRoute from '../app/registration/registration.route'
 import ticketRoute from '../app/ticket/ticket.route'
 import uploadRoute from '../app/upload-fs/upload-fs.routes'
-import usersRoute from '../app/user/user.route'
 import { ERROR_CODE } from '../interface'
 import { AppError } from '../middleware'
 import { ResponseHandler } from '../utils'
 
 const route = Router()
 
-route.use('/users', usersRoute)
 route.use('/upload', uploadRoute)
 route.use('/api/register', registrationRoute)
 route.use('/api/payment', paymentRoute)

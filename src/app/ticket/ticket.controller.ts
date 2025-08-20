@@ -1,5 +1,5 @@
 // Path: src/app/ticket/ticket.controller.ts
-// Ticket HTTP request handlers
+// Ticket HTTP request handlers - Updated for URL QR format support
 
 import { type NextFunction, type Request, type Response } from 'express'
 
@@ -92,7 +92,7 @@ export const generateQRCode = async (
 			return
 		}
 
-		ResponseHandler.ok(res, result, 'QR Code berhasil dibuat')
+		ResponseHandler.ok(res, result, 'QR Code dengan format URL berhasil dibuat')
 	} catch (error) {
 		console.error('Error in generateQRCode controller:', error)
 		next(new AppError('INTERNAL_SERVER_ERROR', 'Terjadi kesalahan sistem'))
@@ -138,6 +138,29 @@ export const getTicketStats = async (
 		ResponseHandler.ok(res, result, 'Statistik tiket berhasil ditemukan')
 	} catch (error) {
 		console.error('Error in getTicketStats controller:', error)
+		next(new AppError('INTERNAL_SERVER_ERROR', 'Terjadi kesalahan sistem'))
+	}
+}
+
+// ✅ NEW: Get frontend URL for QR code
+export const getTicketFrontendURL = async (
+	req: Request,
+	res: Response,
+	next: NextFunction,
+) => {
+	try {
+		const { qrCode } = req.params
+
+		const result = await ticketService.getTicketFrontendURL(qrCode)
+
+		if (result instanceof AppError) {
+			next(result)
+			return
+		}
+
+		ResponseHandler.ok(res, result, 'Frontend URL berhasil ditemukan')
+	} catch (error) {
+		console.error('Error in getTicketFrontendURL controller:', error)
 		next(new AppError('INTERNAL_SERVER_ERROR', 'Terjadi kesalahan sistem'))
 	}
 }

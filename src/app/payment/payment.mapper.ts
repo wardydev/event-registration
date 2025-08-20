@@ -21,6 +21,9 @@ export const paymentUploadDTOMapper = (
 		fileSize,
 		uploadedAt: new Date().toISOString(),
 		message: 'Bukti pembayaran berhasil diupload. Menunggu verifikasi admin.',
+		qrCode: registration.qrCode ?? '',
+		type: registration.ticketType,
+		ticketPrice: Number(registration.ticketPrice),
 	}
 }
 
